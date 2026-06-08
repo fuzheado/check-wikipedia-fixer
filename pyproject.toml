@@ -1,0 +1,37 @@
+[project]
+name = "cwfix"
+version = "0.1.0"
+description = "Interactive CheckWiki Error #26 fixer (HTML <b> → wiki ''')"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "CWFix Contributors"},
+]
+dependencies = [
+    "mwparserfromhell>=0.6",
+    "requests>=2.28",
+    "rich>=13.0",
+    "keyring>=24.0",
+    "click>=8.0",
+]
+
+[project.scripts]
+cwfix = "cwfix.main:cli"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["cwfix*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

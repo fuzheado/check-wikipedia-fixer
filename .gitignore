@@ -1,0 +1,24 @@
+# Virtual environment
+.venv/
+venv/
+.env
+
+# Runtime / testing
+cwfix-run/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# OS files
+.DS_Store
+*.swp
+*.swo
+
+# Editor files
+.vscode/
+.idea/
+
+# Progress cache (local database)
+*.db
