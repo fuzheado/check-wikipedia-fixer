@@ -1,8 +1,13 @@
-# CWFix — CheckWiki Error #26 Interactive Fixer
+# CWFix — CheckWiki Interactive Fixer
 
-**HTML `<b>` → wiki `'''` — convert bold markup on English Wikipedia**
+CWFix is an interactive TUI tool that walks you through fixing problems with Wikipedia pages from the [WikiProject Check Wikipedia](https://en.wikipedia.org/wiki/Wikipedia:WikiProject_Check_Wikipedia)
+project.
 
-CWFix is an interactive TUI tool that walks you through fixing [CheckWiki Error #26](https://checkwiki.toolforge.org/checkwiki.cgi?project=enwiki&view=only&id=26) (HTML `<b>` tags that should be wiki `'''` markup) on English Wikipedia, one article at a time.
+The pilot test of this is with the task:
+
+ [CheckWiki Error #26](https://checkwiki.toolforge.org/checkwiki.cgi?project=enwiki&view=only&id=26) (HTML `<b>` tags that should be wiki `'''` markup) on English Wikipedia, one article at a time.
+
+ **HTML `<b>` → wiki `'''` — convert bold markup on English Wikipedia**
 
 ## Background
 
