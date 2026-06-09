@@ -66,11 +66,16 @@ def cli(ctx, verbose, version):
 @click.option('--resume', is_flag=True, help='Resume from last position')
 @click.option('--reset', is_flag=True, help='Reset progress cache')
 @click.option('--report', is_flag=True, help='Generate report of current progress')
+@click.option('--order', type=click.Choice(['alpha', 'date', 'text', 'random']),
+              default=None,
+              help='Processing order for articles: alpha (alphabetical), '
+                   'date (newest first), text (grouped by snippet), '
+                   'random (shuffled). Default: as returned by CheckWiki.')
 @click.option('--pause/--no-pause', default=False,
               help='Pause with "Press Enter" after each action')
 @click.option('--done/--no-done', default=True,
               help='Signal "done" to CheckWiki after fixing an article')
-def main(batch_safe, dry_run, articles, resume, reset, report, pause, done):
+def main(batch_safe, dry_run, articles, resume, reset, report, order, pause, done):
     """Run the CWFix interactive fixer."""
 
     # ── Initialize ────────────────────────────────────────────────
@@ -130,9 +135,24 @@ def main(batch_safe, dry_run, articles, resume, reset, report, pause, done):
     # ── Fetch article list ────────────────────────────────────────
     tui.show_welcome()
 
+    # Map order → server sort parameter
+    sort_map = {
+        'alpha': 'name',
+        'date': 'date',
+        'text': 'text',
+        'random': 'name',  # doesn't matter, we shuffle client-side
+    }
+    server_sort = sort_map.get(order, 'name') if order else 'name'
+
+    order_label = order or 'default'
+    click.echo(f"Fetching article list from CheckWiki (order: {order_label})...")
     try:
-        click.echo("Fetching article list from CheckWiki...")
-        article_list = fetch_article_list(project='enwiki', error_id=26)
+        article_list = fetch_article_list(
+            project='enwiki',
+            error_id=26,
+            sort=server_sort,
+            order=order,
+        )
     except CheckWikiError as e:
         click.echo(f"✗ Failed to fetch article list: {e}", err=True)
         return
@@ -141,7 +161,7 @@ def main(batch_safe, dry_run, articles, resume, reset, report, pause, done):
         click.echo("No articles found with error #26. Great!")
         return
 
-    click.echo(f"Found {len(article_list)} articles with error #26.")
+    click.echo(f"Found {len(article_list)} articles with error #26 (order: {order_label}).")
 
     # ── Limit articles if requested ───────────────────────────────
     if articles is not None:

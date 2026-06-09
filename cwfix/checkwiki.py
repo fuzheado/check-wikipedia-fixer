@@ -2,6 +2,7 @@
 CheckWiki page fetcher — retrieves and parses the article list for error #26.
 """
 
+import random
 import re
 import logging
 from dataclasses import dataclass
@@ -21,6 +22,9 @@ CW_URL_TEMPLATE = (
     "https://checkwiki.toolforge.org/checkwiki.cgi"
     "?project={project}&view=only&id={error_id}"
 )
+
+# Max results per page from CheckWiki
+PAGE_SIZE = 200
 
 
 class CheckWikiError(Exception):
@@ -50,35 +54,77 @@ class CheckWikiArticle:
         return f"[#{self.error_id}] {self.title}"
 
 
-def fetch_article_list(project='enwiki', error_id=26, timeout=30):
+def fetch_article_list(project='enwiki', error_id=26, timeout=30,
+                       sort='name', order=None):
     """
-    Fetch the list of articles with error #26 from CheckWiki.
-    
+    Fetch ALL articles from CheckWiki by paginating through all results.
+
+    Paginates through the CheckWiki result set using offset/limit params,
+    then applies optional client-side ordering.
+
     Args:
         project: Wiki project name (e.g., 'enwiki').
         error_id: CheckWiki error ID.
-        timeout: Request timeout in seconds.
-    
+        timeout: Request timeout in seconds per page.
+        sort: Server-side sort order passed to CheckWiki.
+              One of 'name' (alphabetical), 'text' (by error snippet),
+              or 'date' (by detection date, newest first).
+        order: Client-side processing order applied after fetching.
+               'alpha'  — alphabetical by article title
+               'date'   — newest first (uses server-side sort=date)
+               'text'   — grouped by error snippet
+               'random' — randomized
+               None     — use server order as-is
+
     Returns:
         List of CheckWikiArticle objects.
-    
+
     Raises:
-        CheckWikiError: If the request fails.
+        CheckWikiError: If any page request fails.
     """
-    url = CW_URL_TEMPLATE.format(project=project, error_id=error_id)
-    headers = {
-        'User-Agent': USER_AGENT,
-    }
+    headers = {'User-Agent': USER_AGENT}
+    articles = []
+    offset = 0
 
-    try:
-        resp = requests.get(url, headers=headers, timeout=timeout)
-        resp.raise_for_status()
-    except requests.RequestException as e:
-        status = e.response.status_code if hasattr(e, 'response') and e.response is not None else None
-        raise CheckWikiError(f"Failed to fetch CheckWiki list: {e}", status_code=status)
+    while True:
+        url = (
+            f"https://checkwiki.toolforge.org/checkwiki.cgi"
+            f"?project={project}&view=only&id={error_id}"
+            f"&offset={offset}&limit={PAGE_SIZE}&sort={sort}"
+        )
 
-    articles = parse_article_list(resp.text, error_id=error_id)
-    logger.info(f"Fetched {len(articles)} articles from CheckWiki error #{error_id}")
+        try:
+            resp = requests.get(url, headers=headers, timeout=timeout)
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            status = e.response.status_code if hasattr(e, 'response') and e.response is not None else None
+            raise CheckWikiError(
+                f"Failed to fetch CheckWiki list (offset={offset}): {e}",
+                status_code=status,
+            )
+
+        page_articles = parse_article_list(resp.text, error_id=error_id)
+
+        if not page_articles:
+            break
+
+        articles.extend(page_articles)
+        offset += len(page_articles)
+
+        # If we got fewer than the page size, we've hit the end
+        if len(page_articles) < PAGE_SIZE:
+            break
+
+    # Apply client-side ordering
+    if order == 'alpha':
+        articles.sort(key=lambda a: a.title.lower())
+    elif order == 'text':
+        articles.sort(key=lambda a: (a.snippet or '').lower())
+    elif order == 'random':
+        random.shuffle(articles)
+    # 'date': already sorted by server with sort='date', newest first
+
+    logger.info(f"Fetched {len(articles)} articles from CheckWiki error #{error_id} (sort={sort}, order={order})")
     return articles
 
 
