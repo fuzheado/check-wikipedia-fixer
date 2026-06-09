@@ -53,8 +53,9 @@ cwfix
 ### Option B: Run from a virtual environment (recommended)
 
 ```bash
-# Clone or cd into the project directory
-cd cwfix/
+# Clone or cd into the project directory (the repo root, not the cwfix/ package subdirectory)
+git clone https://github.com/fuzheado/check-wikipedia-fixer.git
+cd check-wikipedia-fixer
 
 # Create a virtual environment (keeps dependencies isolated)
 python3 -m venv .venv
@@ -76,7 +77,7 @@ deactivate
 The next time you want to run the tool, just activate the venv again:
 
 ```bash
-cd cwfix/
+cd check-wikipedia-fixer
 source .venv/bin/activate
 cwfix
 ```
