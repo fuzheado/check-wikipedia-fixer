@@ -817,6 +817,8 @@ dependencies = [
 | **Multi-wiki support** (Commons, other Wikipedias) | Parameterize the wiki domain; CW tool already supports this | Low |
 | **Session statistics** — "You fixed 142 `<b>` tags across 53 articles in this session" | Motivation and progress tracking | Low |
 | **Edit summary customization** | Let user override the default summary per article or per session | Low |
+| **Pagination and full-list fetching** | The CheckWiki tool supports `offset=N&limit=M` parameters for pagination and `sort` parameters (`name`, `text`, `date`). The fetcher should load all available entries across pages, not just the first 25. | Medium |
+| **Configurable processing order** | Allow the user to choose processing order: alphabetical (by article title), by date (oldest/newest first), by error text chunk, or randomized. Useful for avoiding systemic bias in fixes. | Low |
 
 ### 9.2 Medium-term (3-12 months)
 

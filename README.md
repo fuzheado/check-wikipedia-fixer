@@ -203,6 +203,8 @@ maintenance task). Key design elements that support this:
 | **Web version on Toolforge** | OAuth 2.0 instead of bot passwords, browser-based TUI, shareable across editors. |
 | **Automated bot mode** | After enough human-reviewed training data, autonomously fix SAFE classifications without interaction. |
 | **Multi-wiki support** | Parameterize the wiki domain (Commons, other languages) — the CheckWiki tool already supports this. |
+| **Pagination & full-list fetching** | The CheckWiki tool supports `offset=N&limit=M` params and `sort` options (`name`, `text`, `date`). Fetch all pages, not just the first 25. |
+| **Configurable processing order** | Process articles alphabetically, by date, by error text, or randomly — useful for avoiding bias when fixing long queues. |
 
 ## License
 
